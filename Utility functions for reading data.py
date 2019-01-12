@@ -15,6 +15,17 @@ def symbol_to_path(symbol, base_dir=""):
     """"Return CSV file path given ticker symbol."""
     return os.path.join(base_dir, f"{str(symbol)}.csv")
 
+def get_df(data_frame, symbol, columns, jhow = "left"):
+    path = symbol_to_path(symbol)
+    df_temp = pd.read_csv(path,
+                          index_col="Date",
+                          parse_dates = True,
+                          usecols = columns,
+                          na_values= ["nan"])
+    df_temp = df_temp.rename(columns={columns[1] : symbol})
+    data_frame = data_frame.join(df_temp, how = jhow)
+    return data_frame
+
 def get_data(symbols, dates):
     """Read stock data (adjusted close) for given symbos from CSV files."""
     data_frame = pd.DataFrame(index = dates)
@@ -23,21 +34,11 @@ def get_data(symbols, dates):
     if "SPY" in symbols:
         #If SPY is already present, we delet it first to avoid duplicates.
         symbols.pop(symbols.index("SPY"))
-    symbols.insert(0, "SPY")
+    data_frame = get_df(data_frame, "SPY", ["Date", "Adj Close"], jhow = "inner")
     
-    #Add all list of symbols to the dataframe
+    #Add all symbols of the list to the dataframe
     for s in symbols:
-        path = symbol_to_path(s)
-        df_temp = pd.read_csv(path,
-                              index_col="Date",
-                              parse_dates = True,
-                              usecols = ["Date", "Adj Close"],
-                              na_values= ["nan"])
-        df_temp = df_temp.rename(columns={"Adj Close" : s})
-        if s == "SPY":
-            data_frame = data_frame.join(df_temp, how = 'inner')
-        else: 
-            data_frame = data_frame.join(df_temp)
+        data_frame = get_df(data_frame, s, ["Date", "Adj Close"])
             
     return data_frame
 
