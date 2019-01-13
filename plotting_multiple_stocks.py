@@ -42,11 +42,12 @@ def get_data(symbols, dates):
             
     return data_frame
 
-def plot_data(df, t = "Stock prices"):
+def plot_data(df, title = "Stock prices"):
     """"Plot stock prices"""
-    ax = df.plot(title = t, fontsize=2)
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Price")
+    df.plot(figsize=(20,15), fontsize = 15)
+    plt.title(title, fontsize = 50)
+    plt.ylabel("Price [$]", fontsize = 20)
+    plt.xlabel("Dates", fontsize = 20)
     plt.show()
 
 def test_run():
