@@ -52,6 +52,10 @@ def plot_data(df, title = "Stock prices"):
     plt.legend(fontsize = 20)
     plt.show()
 
+def plot_selected(df, columns, start_date, end_date):
+    plt_df = df.loc[start_date:end_date][columns]
+    plot_data(plt_df)
+
 def test_run():
     """"Function called by test run"""
     
@@ -64,8 +68,8 @@ def test_run():
     symbols.sort()
     
     df1 = get_data(symbols, dates)
-    plt_df = df1.loc["2010-01-01":"2011-01-01"][["SPY","IBM"]]
-    plot_data(plt_df)
+    plot_selected(df1,["SPY","IBM"], "2010-01-01", "2011-01-01")
+
     
     
 if __name__ == "__main__":
