@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jan 13 01:03:41 2019
+Created on Sun Jan 13 01:21:55 2019
 Coursera: https://classroom.udacity.com/courses/ud501/lessons/3975568860/concepts/41007385970923#
-Lesson 3, item 17 - Plotting multiple stocks
+Lesson 3, item 18 - Slice and plot two stocks
+
 
 @author: Victor Zuanazzi
 """
@@ -59,12 +60,12 @@ def test_run():
     end_date = "2014-12-31"
     dates = pd.date_range(start_date, end_date)
     
-    #ymbols = ["HCP", "STZ", "BBBY", "CHK", "AAPL", "IBM", "WMT", "PG", "XOM"]
-    symbols = ["HCP", "STZ", "BBBY"]
+    symbols = ["HCP", "STZ", "BBBY", "CHK", "AAPL", "IBM", "WMT", "PG", "XOM"]
     symbols.sort()
     
     df1 = get_data(symbols, dates)
-    plot_data(df1)
+    plt_df = df1.loc["2010-01-01":"2011-01-01"][["SPY","IBM"]]
+    plot_data(plt_df)
     
     
 if __name__ == "__main__":
