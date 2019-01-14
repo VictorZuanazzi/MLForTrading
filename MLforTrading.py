@@ -46,6 +46,9 @@ class df_4_trading:
         #Add all symbols of the list to the dataframe
         for s in self.symbols:
             self.get_df(s, ["Date", use_col])
+        
+        self.df.fillna(method = "ffill", inplace = True)
+        self.df.fillna(method = "bfill", inplace = True)
     
     def SMA(self, columns, window = 20):
         """Return the Simple Moving Average of the stocks."""
