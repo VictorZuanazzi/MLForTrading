@@ -31,7 +31,7 @@ def test_run():
     
     #compute daily returns
     daily_returns = df.copy()
-    daily_returns[1:] = (df[1:]/df[:-1].values) -1
+    daily_returns[1:] = (df/df.shift(1)) -1
     daily_returns.iloc[0, :] = 0
     
     #ax = w.df["SPY"].plot(figsize=(20,15), fontsize = 15)

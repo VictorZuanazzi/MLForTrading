@@ -77,21 +77,26 @@ class df_4_trading:
     
     def daily_returns(self, columns, start_date, end_date, plot = False):
         """Return a dataframe with the daily returns of the stocks.
-        
-        Warding: sub-optimal implementation. The daily returns are calculated 
-        for the entire dataframe, but only reported for the symbos and dates 
-        of interest.
         """
         
-        daily_returns = self.df.copy()
-        daily_returns[1:] = (self.df[1:]/self.df[:-1].values) -1
+        daily_returns = self.df[start_date:end_date][columns].copy()
+        daily_returns[1:] = (self.df[start_date:end_date][columns]/self.df[start_date:end_date][columns].shift()) -1
         daily_returns.iloc[0, :] = 0
         
         if plot:
-            self.plot_stock_prices(daily_returns[start_date:end_date][columns],
+            self.plot_stock_prices(daily_returns,
                                    title = "Daily Returns")
         
-        return daily_returns[start_date:end_date][columns]
+        return daily_returns
+       
+    def cumulative_returns(self, columns, start_date, end_date, plot = False):
+        """Return a dataframe with the cumulative returns starting at start_date"""
+        c_df = self.normalize_data(self.df[start_date:end_date][columns])
+        
+        if plot:
+            self.plot_normalized(columns, start_date, end_date)
+        
+        return c_df
         
     def plot_stock_prices(self, df , title = "Stock prices"):
         """"Plot stock prices"""
@@ -140,7 +145,7 @@ def test_run():
     
     w = df_4_trading(symbols, start_date, end_date)
     #w.plot_normalized(["SPY","IBM"], "2010-01-01", "2011-01-01")
-    print(w.daily_returns(["SPY", "IBM"], start_date, end_date, plot= False))
+    print(w.daily_returns(["SPY", "IBM"], start_date, "2011-01-01", plot= True))
 
     
 if __name__ == "__main__":
