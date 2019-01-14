@@ -55,20 +55,20 @@ class df_4_trading:
         """Return the Standard Deviation of the stocks."""
         return self.df[columns].rolling(window = window).std()
     
-    def bollinger_bands(self, columns, window = 20, plot = False):
+    def bollinger_bands(self, symbol, window = 20, plot = False):
         """Return a dataframe with the stock prices, mean and bands for the 
         columns given."""
         
-        mean = self.SMA(columns, window = window)           
-        std = self.rolling_std(columns, window = window)
+        mean = self.SMA(symbol, window = window)           
+        std = self.rolling_std(symbol, window = window)
         upper_band = mean + 2*std         
         lower_band = mean - 2*std
         
         bb_df = pd.DataFrame(index = self.dates)        
-        bb_df = bb_df.join(self.df[columns], how = "inner")  
-        bb_df = bb_df.join(lower_band.rename(columns={columns[0] : "Lower Band"}))  
-        bb_df = bb_df.join(mean.rename(columns={columns[0] : "Mean"}))   
-        bb_df = bb_df.join(upper_band.rename(columns={columns[0] : "Upper Band"})) 
+        bb_df = bb_df.join(self.df[symbol], how = "inner")  
+        bb_df = bb_df.join(lower_band.rename(columns={symbol[0] : "Lower Band"}))  
+        bb_df = bb_df.join(mean.rename(columns={symbol[0] : "Mean"}))   
+        bb_df = bb_df.join(upper_band.rename(columns={symbol[0] : "Upper Band"})) 
         
         if plot:
             self.plot_stock_prices(bb_df, title = "Bollinger Bands")
