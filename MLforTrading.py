@@ -46,7 +46,35 @@ class df_4_trading:
         #Add all symbols of the list to the dataframe
         for s in self.symbols:
             self.get_df(s, ["Date", use_col])
-
+    
+    def SMA(self, columns, window = 20):
+        """Return the Simple Moving Average of the stocks."""
+        return self.df[columns].rolling(window = window).mean()
+    
+    def rolling_std(self, columns, window = 20):
+        """Return the Standard Deviation of the stocks."""
+        return self.df[columns].rolling(window = window).std()
+    
+    def bollinger_bands(self, columns, window = 20, plot = False):
+        """Return a dataframe with the stock prices, mean and bands for the 
+        columns given."""
+        
+        mean = self.SMA(columns, window = window)           
+        std = self.rolling_std(columns, window = window)
+        upper_band = mean + 2*std         
+        lower_band = mean - 2*std
+        
+        bb_df = pd.DataFrame(index = self.dates)        
+        bb_df = bb_df.join(self.df[columns], how = "inner")  
+        bb_df = bb_df.join(lower_band.rename(columns={columns[0] : "Lower Band"}))  
+        bb_df = bb_df.join(mean.rename(columns={columns[0] : "Mean"}))   
+        bb_df = bb_df.join(upper_band.rename(columns={columns[0] : "Upper Band"})) 
+        
+        if plot:
+            self.plot_stock_prices(bb_df, title = "Bollinger Bands")
+        
+        return bb_df
+        
     def plot_stock_prices(self, df , title = "Stock prices"):
         """"Plot stock prices"""
         df.plot(figsize=(20,15), fontsize = 15)
@@ -62,7 +90,8 @@ class df_4_trading:
         self.plot_stock_prices(plt_df)
     
     def plot_normalized(self,columns, start_date, end_date):
-        """"Plot normalized stock prices for the specified range of days and symbos."""
+        """"Plot normalized stock prices for the specified range of days and 
+        symbos."""
         plt_df = self.normalize_data(self.df.loc[start_date:end_date][columns])
         self.plot_stock_prices(plt_df)
         
@@ -93,7 +122,7 @@ def test_run():
     
     w = df_4_trading(symbols, start_date, end_date)
     w.plot_normalized(["SPY","IBM"], "2010-01-01", "2011-01-01")
-
+    print(w.bollinger_bands(["SPY"], plot= True))
 
     
 if __name__ == "__main__":
