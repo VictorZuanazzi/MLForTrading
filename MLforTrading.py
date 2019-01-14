@@ -69,6 +69,17 @@ class df_4_trading:
     def normalize_data(self, df_temp):
         """Normalize stock prices using the first row of the dataframe"""
         return df_temp/df_temp.iloc[0,:]
+    
+    def compare_plots(self, df_columns, start_date, end_date, external_data, title = "Stock prices"):
+        """Plot external data together with stock prices"""
+        ax = df_columns.plot(figsize=(20,15), fontsize = 15)
+        external_data.plot(ax = ax)
+        plt.title(title, fontsize = 50)
+        plt.ylabel("Price [$]", fontsize = 20)
+        plt.xlabel("Dates", fontsize = 20)
+        plt.legend(fontsize = 20)
+        plt.show()
+        
 
 def test_run():
     """"Function called by test run"""
