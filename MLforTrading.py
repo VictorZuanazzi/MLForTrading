@@ -91,6 +91,27 @@ class df_4_trading:
                                    title = "Daily Returns")
         
         return daily_returns
+    
+    def histogram_stats(self, df, plot = False):
+        mean = df.mean()
+        std = df.std()
+        kurtosis = df.kurtosis()
+        
+        if plot:
+            self.plot_hist(df)
+        
+        return mean, std, kurtosis
+    
+    def plot_hist(self, df, bins = 10):
+        """Plot histogram"""
+        ax = df.hist(bins = 10, figsize = (20,15))
+        mean = df.mean()
+        plt.axvline(x=mean[0], color="w", linestyle = "dashed", linewidth = 2, label = "Mean")
+        std = df.std()
+        plt.axvline(std[0], color="r", linestyle = "dashed", linewidth = 2, label = "Standard Deviation")
+        plt.axvline(-std[0], color="r", linestyle = "dashed", linewidth = 2)
+        plt.legend(fontsize = 15)
+        plt.show()
        
     def cumulative_returns(self, columns, start_date, end_date, plot = False):
         """Return a dataframe with the cumulative returns starting at start_date"""
@@ -148,8 +169,9 @@ def test_run():
     
     w = df_4_trading(symbols, start_date, end_date)
     #w.plot_normalized(["SPY","IBM"], "2010-01-01", "2011-01-01")
-    print(w.daily_returns(["SPY", "IBM"], start_date, "2011-01-01", plot= True))
-
+    dr = w.daily_returns(["SPY"], start_date, "2011-01-01", plot= False)
+    
+    print(w.histogram_stats(dr, plot = True))
     
 if __name__ == "__main__":
     test_run()
