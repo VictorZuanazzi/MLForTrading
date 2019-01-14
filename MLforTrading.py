@@ -8,6 +8,7 @@ Created on Sun Jan 13 01:44:33 2019
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
+import numpy as np
 
 class df_4_trading:
     
@@ -102,6 +103,38 @@ class df_4_trading:
         
         return mean, std, kurtosis
     
+    def compare_scatter_daily_returns(self, symbol_1, symbol_2, start_date, end_date, plot = True):
+        """Compare two stocks in their daily returns in a scatter plot."""
+        daily_returns = self.daily_returns([symbol_1, symbol_2], 
+                                         start_date, 
+                                         end_date, 
+                                         plot= False) #compute daily returns
+    
+        beta, alpha = np.polyfit(daily_returns[symbol_1], daily_returns[symbol_2], 1)
+        correlation = daily_returns.corr(method = "pearson")
+        
+        if plot:
+            
+            daily_returns.plot(kind="scatter", 
+                               x= symbol_1, 
+                               y = symbol_2, 
+                               figsize = (20,15))
+        
+            plt.plot(daily_returns[symbol_1], 
+                     beta*daily_returns[symbol_1]+alpha, 
+                     color = "r",
+                     label = f"{beta}*x + {alpha}")
+            
+            plt.title(f"Daily return scatter of {symbol_1} and {symbol_2}. \n Corr: {correlation}"
+                      , fontsize = 50)
+            
+            plt.xlabel(symbol_1, fontsize = 20)
+            plt.ylabel(symbol_2, fontsize = 20)        
+            plt.legend(fontsize = 20)
+            plt.show()
+        return beta, alpha, correlation
+
+    
     def plot_hist(self, df, bins = 10):
         """Plot histogram"""
         df.hist(bins = 10, figsize = (20,15))
@@ -180,10 +213,13 @@ def test_run():
     
     w = df_4_trading(symbols, start_date, end_date)
     #w.plot_normalized(["SPY","IBM"], "2010-01-01", "2011-01-01")
-    dr = w.daily_returns(["SPY"], start_date, "2011-01-01", plot= False)
+    #dr = w.daily_returns(["SPY"], start_date, "2011-01-01", plot= True)
     
-    #print(w.histogram_stats(dr, plot = True))
-    w.compare_hist_daily_returns(["SPY", "IBM"],  start_date, end_date)
+    #print(w.histogram_stats(dr, plot = True)
+    print(w.df.head())
+    w.compare_scatter_daily_returns("SPY", "IBM", start_date, end_date)
+    
+    #w.compare_scatter_daily_returns("SPY", "IBM",  start_date, end_date)
     
 if __name__ == "__main__":
     test_run()
