@@ -74,6 +74,24 @@ class df_4_trading:
             self.plot_stock_prices(bb_df, title = "Bollinger Bands")
         
         return bb_df
+    
+    def daily_returns(self, columns, start_date, end_date, plot = False):
+        """Return a dataframe with the daily returns of the stocks.
+        
+        Warding: sub-optimal implementation. The daily returns are calculated 
+        for the entire dataframe, but only reported for the symbos and dates 
+        of interest.
+        """
+        
+        daily_returns = self.df.copy()
+        daily_returns[1:] = (self.df[1:]/self.df[:-1].values) -1
+        daily_returns.iloc[0, :] = 0
+        
+        if plot:
+            self.plot_stock_prices(daily_returns[start_date:end_date][columns],
+                                   title = "Daily Returns")
+        
+        return daily_returns[start_date:end_date][columns]
         
     def plot_stock_prices(self, df , title = "Stock prices"):
         """"Plot stock prices"""
@@ -121,8 +139,8 @@ def test_run():
     symbols.sort()
     
     w = df_4_trading(symbols, start_date, end_date)
-    w.plot_normalized(["SPY","IBM"], "2010-01-01", "2011-01-01")
-    print(w.bollinger_bands(["SPY"], plot= True))
+    #w.plot_normalized(["SPY","IBM"], "2010-01-01", "2011-01-01")
+    print(w.daily_returns(["SPY", "IBM"], start_date, end_date, plot= False))
 
     
 if __name__ == "__main__":
