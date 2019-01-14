@@ -104,7 +104,7 @@ class df_4_trading:
     
     def plot_hist(self, df, bins = 10):
         """Plot histogram"""
-        ax = df.hist(bins = 10, figsize = (20,15))
+        df.hist(bins = 10, figsize = (20,15))
         mean = df.mean()
         plt.axvline(x=mean[0], color="w", linestyle = "dashed", linewidth = 2, label = "Mean")
         std = df.std()
@@ -113,6 +113,17 @@ class df_4_trading:
         plt.legend(fontsize = 15)
         plt.show()
        
+    def compare_hist_daily_returns(self, columns, start_date, end_date):
+        """Compare histogram of daily returns of multiple stocks"""
+        daily_returns =self.daily_returns(columns, start_date, end_date)
+        
+        for s in columns:
+            daily_returns[s].hist(bins = 20, label = s, figsize = (20,15))
+        
+        plt.legend(fontsize = 20)
+        plt.show()
+        
+        
     def cumulative_returns(self, columns, start_date, end_date, plot = False):
         """Return a dataframe with the cumulative returns starting at start_date"""
         c_df = self.normalize_data(self.df[start_date:end_date][columns])
@@ -171,7 +182,8 @@ def test_run():
     #w.plot_normalized(["SPY","IBM"], "2010-01-01", "2011-01-01")
     dr = w.daily_returns(["SPY"], start_date, "2011-01-01", plot= False)
     
-    print(w.histogram_stats(dr, plot = True))
+    #print(w.histogram_stats(dr, plot = True))
+    w.compare_hist_daily_returns(["SPY", "IBM"],  start_date, end_date)
     
 if __name__ == "__main__":
     test_run()
