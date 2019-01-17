@@ -27,6 +27,7 @@ class portifolio(ml.df_4_trading):
             volume_allocated: total ammount allocated, if not filled the 
                 dataframe self.allocation shows the percentages of allocation.
         """
+        self.date_of_allocation = date_of_allocation
         if sum(percentage.values()) != 1:
             print (f"Percentages sum up to {sum(percentages.values())} != 1.")
             print ("Please correct the percentages and call callocate again")
@@ -39,7 +40,17 @@ class portifolio(ml.df_4_trading):
             total = pd.DataFrame(data = self.allocation.sum(axis=1), columns = ["Total"])
             self.allocation = self.allocation.join(total)
             self.allocation *=volume_allocated
-            
+    
+    def portifolio_statistics(self):
+        
+        daily_returns = pd.DataFrame(index = self.allocation.index)
+        daily_returns["Daily R"] = self.allocation["Total"].copy()
+                                     
+        daily_returns["Daily R"].iloc[1:] = (self.allocation["Total"]/self.allocation["Total"].shift()) -1
+        daily_returns["Daily R"].iloc[0] = 0
+
+        self.allocation = self.allocation.join(daily_returns)
+        
     
 def test_run():
     """"Function called by test run"""
@@ -55,9 +66,15 @@ def test_run():
     investments = {"HCP": 0.1, "IBM": 0.2, "AAPL":0.7}
     p.allocate(list(investments.keys()), investments, "2014-01-01", 100)
 
-    print(p.df.head())
+    #print(p.df.head())
     print(p.allocation.head(10))
-
+    p.portifolio_statistics()
+    print("portifolio \n", p.allocation.head(10))
+    
+    #df = p.allocation["Total"].copy()
+    #df.iloc[1:]  = (p.allocation["Total"]/p.allocation["Total"].shift()) -1
+    #df.iloc[0] = 0
+    #print(df.head())
     
 
     
