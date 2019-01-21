@@ -78,6 +78,17 @@ class portfolio(ml.df_4_trading):
         dd = pd.date_range(date, periods=2, freq='D')
         return self.allocation[dd[0]:dd[1]][symbol][0]/self.allocation[symbol].iloc[0] - 1
     
+    def daily_risk_free_rate(self, risk_free_rate = 0, year = 252):
+        """returns the daily risk free rate"""
+        return (1 + risk_free_rate)**(1/year) - 1
+    
+    def sharpe(self, date, risk_free_rate = 0):
+        """returns the shape value for the application"""
+        drfr = self.daily_risk_free_rate(risk_free_rate)
+        av_dr = self.average_daily_return(date)
+        std_dr = self.std_daily_return(date)
+        return (av_dr + drfr)/std_dr
+    
     def portfolio_statistics(self, date):
         """returns the cumulative return, average and standard deviation of 
         daily returns from the begining of the allocation to the specified date.
@@ -89,10 +100,13 @@ class portfolio(ml.df_4_trading):
         
         std_dr = self.std_daily_return(date)
         
+        s = self.sharpe(date)
+        
         #organizes everything in a nice dictionary
         p_stats = {"cumulative daily return": cumulative_dr,
+                   "sharpe": s,
                    "average daily return": average_dr,
-                   "std_daly_return": std_dr
+                   "std_daly_return": std_dr                   
                    }
         
         return p_stats
