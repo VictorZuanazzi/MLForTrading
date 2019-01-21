@@ -21,8 +21,33 @@ def error(line, data):
     Return: Summed Squared Y-axis error"""
     return np.sum((data[:,1] - (line[0] * data[:, 0] + line[1]))**2)
 
+def error_poly(C, data):
+    """Compute error between given polynomial and oberved data.
+    Input:
+        C: numpy.poly1d or equivalent array representing  polynomial 
+            coeffieicents
+        data: 2D array where each row is a point (x,y)
+    Return: Summed Squared Y-axis error"""
+    return np.sum((data[:,1] - np.polyval(C, data[:, 0]))**2)
 
-def fit_line(data, error_func):
+def fit_poly(data, error_func, degree = 3, plot = False):
+    """"""
+    
+    #Generate initial guess for polynomial model (all coeffs = 1)
+    Cguess = np.poly1d(np.ones(degree + 1, dtype = np.float32))
+    
+    #plot initial guess
+    if plot:
+        xs = np.linspace(0, 10, 21)
+        plt.plot(xs, np.polyval(Cguess, xs), "m--", linewidth = 2.0,
+                 label = "Initial Guess")
+        
+    #Call optimizer to miminize error function
+    result = spo.minimize(error_func, Cguess, args =(data,), method = "SLSQP",
+                          options={"disp": True})
+    return np.poly1d(result.x)
+
+def fit_line(data, error_func, plot = False):
     """Fit a line to given data, using a supplied error function
     Input:
         data: D array where each row is a point (x0,y)
@@ -39,9 +64,10 @@ def fit_line(data, error_func):
     l = np.float32([slope, y_intercept])
     
     #Plot initial guess
-    x_ends = np.float32([0, 10])
-    plt.plot(x_ends, l[0] * x_ends + l[1], "m--", linewidth = 2.0,
-             label = "Initial Guess")
+    if plot:
+        x_ends = np.float32([0, 10])
+        plt.plot(x_ends, l[0] * x_ends + l[1], "m--", linewidth = 2.0,
+                 label = "Initial Guess")
     
     #call optimizer to minimize error function
     result = spo.minimize(error_func, l, args =(data,), method = "SLSQP",
@@ -56,7 +82,7 @@ def test_run():
     l_orig = np.float32([4,2])
     print(f"Original line: C0 = {l_orig[0]}, C1 = {l_orig[1]}") 
     Xorig = np.linspace(0,10,21)
-    Yorig = l_orig[0] * Xorig + l_orig[1]
+    Yorig = l_orig[0] * np.log(Xorig)  + l_orig[1] + np.sin(Xorig)
     plt.plot(Xorig, Yorig, "b--", linewidth = 2.0, label = "Original line")
     
     #Generate noisy data points
@@ -66,7 +92,10 @@ def test_run():
     plt.plot(data[:,0], data[:, 1], "go", label = "Data points")
     
     #Try to fit a line to this data
-    l_fit = fit_line(data, error)
+    #l_fit = fit_line(data, error)
+    
+    #Try to fit a polytnomail to this data
+    l_fit = fit_poly(data, error_poly)
     print(l_fit)
     print(f"Fitted line: C0 = {l_fit[0]}, C1 = {l_fit[1]}") 
     plt.plot(data[:, 0], l_fit[0] * data[:, 0] + l_fit[1], "r--", 
