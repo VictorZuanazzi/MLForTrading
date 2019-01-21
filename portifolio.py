@@ -40,9 +40,9 @@ class portifolio(ml.df_4_trading):
             total = pd.DataFrame(data = self.allocation.sum(axis=1), columns = ["Total"])
             self.allocation = self.allocation.join(total)
             self.allocation *=volume_allocated
-    
-    def portifolio_statistics(self):
-        
+            self.add_daily_return()
+            
+    def add_daily_return(self):
         daily_returns = pd.DataFrame(index = self.allocation.index)
         daily_returns["Daily R"] = self.allocation["Total"].copy()
                                      
@@ -50,6 +50,11 @@ class portifolio(ml.df_4_trading):
         daily_returns["Daily R"].iloc[0] = 0
 
         self.allocation = self.allocation.join(daily_returns)
+    
+    def portifolio_statistics(self, date):
+        cumulative_daily_return = self.allocation[self.date_of_allocation]["Daily R"]/self.allocation[date]["Daily R"]
+        
+        average_daily_return = self.allocation["Daily R"].mean()
         
     
 def test_run():
@@ -68,8 +73,8 @@ def test_run():
 
     #print(p.df.head())
     print(p.allocation.head(10))
-    p.portifolio_statistics()
-    print("portifolio \n", p.allocation.head(10))
+    #p.add_daily_return()
+    #print("portifolio \n", p.allocation.head(10))
     
     #df = p.allocation["Total"].copy()
     #df.iloc[1:]  = (p.allocation["Total"]/p.allocation["Total"].shift()) -1
