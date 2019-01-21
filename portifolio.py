@@ -50,13 +50,33 @@ class portifolio(ml.df_4_trading):
         daily_returns["Daily R"].iloc[0] = 0
 
         self.allocation = self.allocation.join(daily_returns)
+        
+    def average_daily_return(self, date):
+        return self.allocation[self.date_of_allocation:date]["Daily R"].mean()
+    
+    def std_daily_return(self,date):
+        return self.allocation[self.date_of_allocation:date]["Daily R"].std()
+    
+    def cumulative_daily_return(self, date, symbol = "Total"):       
+        dd = pd.date_range(date, periods=2, freq='D')
+        return self.allocation[symbol].iloc[0]/self.allocation[dd[0]:dd[1]][symbol]
     
     def portifolio_statistics(self, date):
-        cumulative_daily_return = self.allocation[self.date_of_allocation]["Daily R"]/self.allocation[date]["Daily R"]
         
-        average_daily_return = self.allocation["Daily R"].mean()
+        cumulative_dr = self.cumulative_daily_return(date)
         
-    
+        average_dr = self.average_daily_return(date)
+        
+        std_dr = self.std_daily_return(date)
+        
+        #organizes everything in a nice dictionary
+        p_stats = {"cumulative daily return": cumulative_dr,
+                   "average daily return": average_dr,
+                   "std_daly_return": std_dr
+                   }
+        
+        return p_stats
+          
 def test_run():
     """"Function called by test run"""
     
@@ -71,15 +91,10 @@ def test_run():
     investments = {"HCP": 0.1, "IBM": 0.2, "AAPL":0.7}
     p.allocate(list(investments.keys()), investments, "2014-01-01", 100)
 
-    #print(p.df.head())
     print(p.allocation.head(10))
-    #p.add_daily_return()
-    #print("portifolio \n", p.allocation.head(10))
-    
-    #df = p.allocation["Total"].copy()
-    #df.iloc[1:]  = (p.allocation["Total"]/p.allocation["Total"].shift()) -1
-    #df.iloc[0] = 0
-    #print(df.head())
+    print(p.allocation.tail(10))
+    print(p.portifolio_statistics("2014-10-31"))
+    print(p.cumulative_daily_return("2014-10-31"))
     
 
     
