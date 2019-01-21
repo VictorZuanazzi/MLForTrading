@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jan 21 22:04:30 2019
+Source: https://classroom.udacity.com/courses/ud501/lessons/4351588706/concepts/43677793280923
 Lesson 9, part 3: Minimizer in Python
 @author: Victor Zuanazzi
 """
@@ -26,7 +27,6 @@ def test_run():
     #Plot functin values, mark minima
     Xplot = np.linspace(0.5, 2.5, 21)
     Yplot = f(Xplot)
-    plt.figsize=(20,15)
     plt.plot(Xplot, Yplot)
     plt.plot(min_result.x, min_result.fun, 'ro')
     plt.title("Minima of an objective function")
