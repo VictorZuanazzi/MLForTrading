@@ -188,22 +188,16 @@ def test_run():
     symbols.sort() #not necessary, but helps in readbility.
     
     p = portfolio(symbols, start_date, end_date)
-    bla = p.optimize_allocation("2010-01-01", volume_allocated = 100)
+    bla = p.optimize_allocation("2010-01-01", volume_allocated = 1)
     print(bla)
     
     print(p.allocation[["AAPL","PG","Total"]].head())
     print(p.allocation[["AAPL","PG","Total"]].tail())
-    
-#    investments = {"HCP": 0.1, "IBM": 0.2, "AAPL":0.7}
-#    p.allocate(list(investments.keys()), investments, "2014-01-01", 100)
-#    date = "2014-10-31"
-#    print(p.allocation.head(10))
-#    print(p.allocation.tail(10))
-#    print(p.portfolio_statistics("2014-10-31"))
-#    print(p.cumulative_daily_return("2014-10-31"))
-#    dd = pd.date_range(date, periods=2, freq='D')
-#    print(dd, dd[0], str(dd[1]))
-#    print(p.allocation[dd[0]:dd[1]]["Total"][0])
+    p.plot_stock_prices(p.allocation)
+
+    spy = portfolio(["SPY"], start_date, end_date)
+    spy.allocate(["SPY"], {"SPY": 1,}, start_date)
+    spy.plot_stock_prices(spy.allocation)
     
 
     
