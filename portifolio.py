@@ -194,11 +194,11 @@ def test_run():
     
     print(p.allocation.head())
     print(p.allocation.tail())
-    p.plot_stock_prices(p.allocation)
+    p.plot_stock_prices(p.allocation[["AAPL", "GLD", "Total"]])
 
     spy = portfolio(["SPY"], start_date, end_date)
     spy.allocate(["SPY"], {"SPY": 1,}, start_date)
-    spy.plot_stock_prices(spy.allocation)
+    spy.plot_stock_prices(spy.allocation["SPY"])
     
 
     
