@@ -44,12 +44,15 @@ class df_4_trading:
             self.symbols.pop(symbols.index("SPY"))
         self.get_df("SPY", ["Date", use_col], jhow = "inner")
         
+        
         #Add all symbols of the list to the dataframe
         for s in self.symbols:
             self.get_df(s, ["Date", use_col])
         
         self.df.fillna(method = "ffill", inplace = True)
-        self.df.fillna(method = "bfill", inplace = True)
+        #Adds SPY to the symbols to ensure that aligment between dataframe and 
+        #the list of symbols.
+        self.symbols.append("SPY") 
     
     def SMA(self, columns, window = 20):
         """Return the Simple Moving Average of the stocks."""
