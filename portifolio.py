@@ -182,17 +182,18 @@ def test_run():
     
     #Define date range:
     start_date = "2010-01-01"
-    end_date = "2014-12-31"
+    end_date = "2010-12-31"
     
-    symbols = ["HCP", "STZ", "BBBY", "CHK", "AAPL", "IBM", "WMT", "PG", "XOM"]
+    #symbols = ["HCP", "STZ", "BBBY", "CHK", "AAPL", "IBM", "WMT", "PG", "XOM"]
+    symbols = [ "AAPL","XOM", "GOOG", "GLD"]
     symbols.sort() #not necessary, but helps in readbility.
     
     p = portfolio(symbols, start_date, end_date)
     bla = p.optimize_allocation("2010-01-01", volume_allocated = 1)
     print(bla)
     
-    print(p.allocation[["AAPL","PG","Total"]].head())
-    print(p.allocation[["AAPL","PG","Total"]].tail())
+    print(p.allocation.head())
+    print(p.allocation.tail())
     p.plot_stock_prices(p.allocation)
 
     spy = portfolio(["SPY"], start_date, end_date)
