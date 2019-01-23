@@ -41,7 +41,7 @@ class df_4_trading:
         #"SPY" will always be added in the beggining as refference
         if "SPY" in self.symbols:
             #If SPY is already present, we delet it first to avoid duplicates.
-            self.symbols.pop(symbols.index("SPY"))
+            self.symbols.pop(self.symbols.index("SPY"))
         self.get_df("SPY", ["Date", use_col], jhow = "inner")
         
         
