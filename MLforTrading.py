@@ -220,7 +220,7 @@ def test_run():
     
     #print(w.histogram_stats(dr, plot = True)
     print(w.df.head())
-    w.compare_scatter_daily_returns("SPY", "IBM", start_date, end_date)
+    w.compare_scatter_daily_returns("SPY", "AAPL", start_date, end_date)
     
     #w.compare_scatter_daily_returns("SPY", "IBM",  start_date, end_date)
     
