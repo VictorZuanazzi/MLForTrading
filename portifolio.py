@@ -189,9 +189,10 @@ class portfolio(ml.df_4_trading):
         """Not completelly working yet, the sum of percentages do no add to 1"""
         
         CAPM = {}
-        self.weights = np.zeros(len(self.symbols))
-        self.betas = np.zeros(len(self.symbols))
-        self.signs = np.zeros(len(self.symbols))
+        self.weights = np.zeros(len(self.symbols)-1)
+        self.betas = np.zeros(len(self.symbols)-1)
+        self.signs = np.zeros(len(self.symbols)-1)
+        
         for i, symbol, in enumerate(self.symbols):
             if symbol != "SPY":
                 CAPM[symbol] = list(self.compare_scatter_daily_returns("SPY", 
@@ -203,22 +204,30 @@ class portfolio(ml.df_4_trading):
                 
                 self.betas[i] = CAPM[symbol][0]
                 self.signs[i] = np.sign(CAPM[symbol][1])
-                self.weights[i] = np.random.rand() #*self.signs[i]
-    
-        self.weights = self.weights/abs(sum(self.weights))
+                self.weights[i] = np.random.rand()*self.signs[i]
+
+        if sum(self.weights) < 0:
+            self.weights = np.where(self.weights>0,  #condition
+                                    self.weights + abs(2*sum(self.weights)), #if true
+                                    self.weights) #if false
+
+        self.weights = self.weights/abs(sum(self.weights)) #normalize sum to 1
+            
+            
         error_func = self.CAPM_error_function
-        sum_to_one = ({'type': 'eq', 'fun': lambda x: np.sum(x*self.signs) - 1.0})
+        sum_to_one = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1.0})
         neg_one_to_one = tuple([-1,1] for i in range(len(self.weights)))
         #minimizer
         result = spo.minimize(error_func,
                               self.weights,
                               method = "SLSQP",
                               options={"disp": False},
-                              bounds = neg_one_to_one,
+                              #bounds = neg_one_to_one,
                               constraints = sum_to_one)
         
-        
-        investments = {symbol: self.signs[i]*self.weights[i] for i, symbol in enumerate(self.symbols)}
+        self.weights = np.concatenate((self.weights, np.zeros(1)))
+        self.signs = np.concatenate((self.signs, np.zeros(1)))
+        investments = {symbol: self.weights[i] for i, symbol in enumerate(self.symbols)}
         self.date_of_allocation = self.start_date      
         
         
@@ -227,7 +236,7 @@ class portfolio(ml.df_4_trading):
                       self.date_of_allocation,  
                       volume_allocated)
         
-        print(self.allocation)
+        #print(self.allocation)
         
           
 def test_run():
@@ -237,14 +246,15 @@ def test_run():
     start_date = "2010-01-01"
     end_date = "2010-12-31"
     
-    symbols = ["HCP", "STZ", "BBBY", "CHK", "AAPL", "IBM", "WMT", "PG", "XOM"]
-    #symbols = [ "AAPL","XOM", "GOOG", "GLD"]
+    #symbols = ["HCP", "STZ", "BBBY", "CHK", "AAPL", "IBM", "WMT", "PG", "XOM"]
+    symbols = [ "AAPL","XOM", "GOOG"]
     symbols.sort() #not necessary, but helps in readbility.
     
     p = portfolio(symbols, start_date, end_date)
     
     p.CAPM_allocation()
-    
+    print(p.allocation.head())
+    print(p.allocation.tail())
     
 #    p = portfolio(symbols, start_date, end_date)
 #    bla = p.optimize_allocation("2010-01-01", volume_allocated = 1)
