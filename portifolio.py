@@ -177,46 +177,61 @@ class portfolio(ml.df_4_trading):
         return result.x
     
     def CAPM_error_function(self, w, status = False):
+        """Squared loss function.
+        input:
+            w: weights used for allocation. sum(w) =1
+            status: logs the values of weights and their sum
+        return: squared sum of weihts*betas"""
         
-        #w = abs(w)
-        total = w.dot(self.betas*self.signs)
+        total = w.dot(self.betas)
         if status:
             print(w, sum(w))
         
         return total**2
     
     def CAPM_allocation(self, volume_allocated = 1):
-        """Not completelly working yet, the sum of percentages do no add to 1"""
+        """Creates a portfolio with percentage of allocations optimized by CAPM.
+        input:
+            volume_allocated: total ammount allocated, standard value is 1.
+        return: dict with the symbos and the ammount invested in each one."""
         
         CAPM = {}
+        
+        
         self.weights = np.zeros(len(self.symbols)-1)
         self.betas = np.zeros(len(self.symbols)-1)
         self.signs = np.zeros(len(self.symbols)-1)
         
         for i, symbol, in enumerate(self.symbols):
+            #jumps "SPY"
             if symbol != "SPY":
+                #find beta and alpha for each symbol
                 CAPM[symbol] = list(self.compare_scatter_daily_returns("SPY", 
                                                                  symbol, 
                                                                  self.start_date, 
                                                                  self.end_date, 
                                                                  plot = False))
                 
-                
                 self.betas[i] = CAPM[symbol][0]
                 self.signs[i] = np.sign(CAPM[symbol][1])
-                self.weights[i] = np.random.rand()*self.signs[i]
+                self.weights[i] = self.signs[i]/len(self.weights)  #deterministic
+                # self.weights[i] = np.random.rand()*self.signs[i] #stochatic method
 
+        #ensures that the sum of the weights is > 0
         if sum(self.weights) < 0:
             self.weights = np.where(self.weights>0,  #condition
                                     self.weights + abs(2*sum(self.weights)), #if true
                                     self.weights) #if false
-
-        self.weights = self.weights/abs(sum(self.weights)) #normalize sum to 1
+        
+        #normalize sum to 1
+        self.weights = self.weights/abs(sum(self.weights)) 
             
-            
+        #error function to be minimized
         error_func = self.CAPM_error_function
+        
+        #constraint, the weights must sum to 1
         sum_to_one = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1.0})
-        neg_one_to_one = tuple([-1,1] for i in range(len(self.weights)))
+        
         #minimizer
         result = spo.minimize(error_func,
                               self.weights,
@@ -225,18 +240,21 @@ class portfolio(ml.df_4_trading):
                               #bounds = neg_one_to_one,
                               constraints = sum_to_one)
         
+        #includes the slot for SPY
         self.weights = np.concatenate((self.weights, np.zeros(1)))
         self.signs = np.concatenate((self.signs, np.zeros(1)))
+        
+        #dictionary of {symbol: percentage}
         investments = {symbol: self.weights[i] for i, symbol in enumerate(self.symbols)}
         self.date_of_allocation = self.start_date      
         
-        
+        #makes the allocation acording to the percentages calculated using CAPM.
         self.allocate(self.symbols, 
                       investments, 
                       self.date_of_allocation,  
                       volume_allocated)
         
-        #print(self.allocation)
+        return investments
         
           
 def test_run():
@@ -246,8 +264,8 @@ def test_run():
     start_date = "2010-01-01"
     end_date = "2010-12-31"
     
-    #symbols = ["HCP", "STZ", "BBBY", "CHK", "AAPL", "IBM", "WMT", "PG", "XOM"]
-    symbols = [ "AAPL","XOM", "GOOG"]
+    symbols = ["HCP", "STZ", "BBBY", "CHK", "AAPL", "IBM", "WMT", "PG", "XOM"]
+    #symbols = [ "AAPL","XOM", "GOOG"]
     symbols.sort() #not necessary, but helps in readbility.
     
     p = portfolio(symbols, start_date, end_date)
@@ -256,12 +274,11 @@ def test_run():
     print(p.allocation.head())
     print(p.allocation.tail())
     
-#    p = portfolio(symbols, start_date, end_date)
-#    bla = p.optimize_allocation("2010-01-01", volume_allocated = 1)
-#    print(bla)
+    p = portfolio(symbols, start_date, end_date)
+    bla = p.optimize_allocation(start_date, volume_allocated = 1)
 #    
-#    print(p.allocation.head())
-#    print(p.allocation.tail())
+    print(p.allocation.head())
+    print(p.allocation.tail())
 #    p.plot_stock_prices(p.allocation[["AAPL", "GLD", "Total"]])
 #
 #    spy = portfolio(["SPY"], start_date, end_date)
