@@ -160,7 +160,7 @@ class portfolio(ml.df_4_trading):
         
         #bounds spo.minimze has to respect
         #the percentages have to be between 0 and 1
-        zero_to_one = tuple([0,1] for i in range(len(investments)))
+        zero_to_one = tuple([-1,1] for i in range(len(investments)))
         
         #constraint spo.minize has to respect
         #the sum of all percentages must be 1
